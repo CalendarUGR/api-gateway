@@ -26,12 +26,20 @@ public class SecurityConfig {
                 .addFilterAt(jwtAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf(csrf -> csrf.disable())
                 .authorizeExchange(exchange -> exchange
+                                // Auth service
                                 .pathMatchers("/auth/login", "/auth/refresh").permitAll()
-                                .pathMatchers(HttpMethod.GET, "/user/**").permitAll()
-                                .pathMatchers(HttpMethod.POST, "/user").authenticated()
-                                .pathMatchers(HttpMethod.PUT, "/user/**").authenticated()
-                                .pathMatchers(HttpMethod.DELETE, "/user/**").authenticated()
-                                .anyExchange().denyAll()
+                                // User service
+                                .pathMatchers(HttpMethod.GET, "/user/nickname/**","/user/email/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/user/all").hasRole("ADMIN")
+
+                                .pathMatchers(HttpMethod.POST, "/user").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/user/**").hasRole("ADMIN")
+
+                                .pathMatchers(HttpMethod.PUT, "/user/updateNickname/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+
+                                // Any other request must be authenticated
+                                .anyExchange().authenticated()
                 )
                 .requestCache(cache -> cache
                         .requestCache(NoOpServerRequestCache.getInstance())); // Disable request caching, sessions are stateless

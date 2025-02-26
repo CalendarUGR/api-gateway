@@ -9,10 +9,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -51,18 +51,18 @@ public class JwtAuthenticationFilter implements WebFilter {
             }
         });
     }
-    
+
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-    
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             return validateToken(token)
                     .flatMap(claims -> {
                         String nickname = claims.getSubject();
                         Object rolesObject = claims.get("role");
-    
+
                         List<String> roles;
                         if (rolesObject instanceof List) {
                             roles = (List<String>) rolesObject;
@@ -71,14 +71,16 @@ public class JwtAuthenticationFilter implements WebFilter {
                         } else {
                             roles = List.of(); // Si no hay roles, lista vacía
                         }
-    
+
+                        logger.debug("Roles extraídos del token: " + roles);
+
                         Authentication authentication = new UsernamePasswordAuthenticationToken(
                                 nickname, null, roles.stream()
                                         .map(SimpleGrantedAuthority::new)
                                         .collect(Collectors.toList()));
-    
+
                         logger.debug("Token validado, usuario autenticado: " + nickname);
-    
+
                         // Establecer el contexto de seguridad
                         return chain.filter(exchange)
                                 .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
@@ -89,8 +91,7 @@ public class JwtAuthenticationFilter implements WebFilter {
                         return exchange.getResponse().setComplete();
                     });
         }
-    
+
         return chain.filter(exchange);
     }
-    
 }
