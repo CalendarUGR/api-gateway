@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeExchange(exchange -> exchange
                                 // Auth service
-                                .pathMatchers("/auth/login", "/auth/refresh").permitAll()
+                                .pathMatchers("/auth/login", "/auth/refresh", "/user/register", "/user/activate").permitAll()
                                 // User service
                                 .pathMatchers(HttpMethod.GET, "/user/nickname/**","/user/email/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.GET, "/user/all").hasRole("ADMIN")
