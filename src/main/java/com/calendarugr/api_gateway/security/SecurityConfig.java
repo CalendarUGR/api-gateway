@@ -30,13 +30,13 @@ public class SecurityConfig {
                                 .pathMatchers("/auth/login", "/auth/refresh", "/user/register", "/user/activate").permitAll()
                                 // User service
                                 .pathMatchers(HttpMethod.GET, "/user/nickname/**","/user/email/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.GET, "/user/all").hasRole("ADMIN")
-
-                                .pathMatchers(HttpMethod.POST, "/user").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.PUT, "/user/**").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.DELETE, "/user/**").hasRole("ADMIN")
-
                                 .pathMatchers(HttpMethod.PUT, "/user/updateNickname/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/user/changeRole/**").hasAnyRole("TEACHER", "ADMIN")
+
+                                .pathMatchers(HttpMethod.GET, "/user/all").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/user/crearAdmin").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/actualizarAdmin/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/user/borrarAdmin/**").hasRole("ADMIN")
 
                                 // Any other request must be authenticated
                                 .anyExchange().authenticated()

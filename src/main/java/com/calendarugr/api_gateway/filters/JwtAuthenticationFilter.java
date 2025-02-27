@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,7 +24,6 @@ import io.jsonwebtoken.JwtException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter implements WebFilter {
@@ -60,29 +60,26 @@ public class JwtAuthenticationFilter implements WebFilter {
             String token = authHeader.substring(7);
             return validateToken(token)
                     .flatMap(claims -> {
-                        String nickname = claims.getSubject();
-                        Object rolesObject = claims.get("role");
+                        String id = claims.getSubject();
+                        String role = claims.get("role", String.class);
 
-                        List<String> roles;
-                        if (rolesObject instanceof List) {
-                            roles = (List<String>) rolesObject;
-                        } else if (rolesObject instanceof String) {
-                            roles = List.of((String) rolesObject);
-                        } else {
-                            roles = List.of(); // Si no hay roles, lista vacía
-                        }
-
-                        logger.debug("Roles extraídos del token: " + roles);
+                        logger.debug("Rol extraído del token: " + role);
 
                         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                                nickname, null, roles.stream()
-                                        .map(SimpleGrantedAuthority::new)
-                                        .collect(Collectors.toList()));
+                                id, null, List.of(new SimpleGrantedAuthority(role)));
 
-                        logger.debug("Token validado, usuario autenticado: " + nickname);
+                        logger.debug("Token validado, usuario autenticado: " + id);
 
-                        // Establecer el contexto de seguridad
-                        return chain.filter(exchange)
+                        // Added headers
+                        ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                                .header("X-User-ID", id)
+                                .header("X-User-Role", role)
+                                .build();
+
+                        ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
+
+                        // Security context
+                        return chain.filter(mutatedExchange)
                                 .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
                     })
                     .onErrorResume(e -> {
