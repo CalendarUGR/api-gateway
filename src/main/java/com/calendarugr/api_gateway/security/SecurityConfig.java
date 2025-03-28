@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchange -> exchange
                                 // Auth service
                                 .pathMatchers("/auth/login", "/auth/refresh", "/user/register", "/user/activate").permitAll()
+                                
                                 // User service
                                 .pathMatchers(HttpMethod.GET, "/user/nickname/**","/user/email/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.PUT, "/user/updateNickname/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
@@ -38,6 +39,13 @@ public class SecurityConfig {
                                 .pathMatchers(HttpMethod.PUT, "/user/actualizarAdmin/**").hasRole("ADMIN")
                                 .pathMatchers(HttpMethod.DELETE, "/user/borrarAdmin/**").hasRole("ADMIN")
 
+                                // Sechedule consumer service
+                                .pathMatchers(HttpMethod.GET, "/schedule-consumer/**").permitAll()
+
+                                // Academic subscription service
+                                .pathMatchers(HttpMethod.POST, "/academic-subscription/subscribe").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/academic-subscription/classes").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                
                                 // Any other request must be authenticated
                                 .anyExchange().authenticated()
                 )
