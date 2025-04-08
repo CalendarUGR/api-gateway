@@ -1,4 +1,4 @@
-package com.calendarugr.api_gateway;
+package com.calendarugr.api_gateway.config;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
