@@ -31,19 +31,27 @@ public class SecurityConfig {
                                 
                                 // User service
                                 .pathMatchers(HttpMethod.GET, "/user/nickname/**","/user/email/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.PUT, "/user/updateNickname/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.PUT, "/user/changePassword/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/update-nickname/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/change-password/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/user/activate").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.POST, "/user/deactivate/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.GET, "/user/changeRole/**").hasAnyRole("TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/change-role/**").hasAnyRole("TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/activate-notifications/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/deactivate-notifications/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/user/get-emails/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
 
                                 .pathMatchers(HttpMethod.GET, "/user/all").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.POST, "/user/crearAdmin").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.PUT, "/user/actualizarAdmin/**").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.DELETE, "/user/borrarAdmin/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/user/crear-admin").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/actualizar-admin/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/user/borrar-admin/**").hasRole("ADMIN")
 
-                                // Sechedule consumer service
+                                .pathMatchers(HttpMethod.GET, "/user/role-all").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/user/role-create").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/user/role-delete/**").hasRole("ADMIN")
+
+                                // Sechedule consumer service ( We permit everybody to GET public information ...)
+                                // Post endpoint in this service are meant to be used by other services
                                 .pathMatchers(HttpMethod.GET, "/schedule-consumer/**").permitAll() // Allow all GET requests to schedule-consumer service
-                                .pathMatchers(HttpMethod.POST, "/schedule-consumer/**").permitAll() // Allow all POST requests to schedule-consumer service
 
                                 // Mail service
                                 .pathMatchers(HttpMethod.POST, "/email/send").hasRole("ADMIN") // Only allow ADMIN to send emails
@@ -51,10 +59,16 @@ public class SecurityConfig {
                                 // Academic subscription service
                                 .pathMatchers(HttpMethod.POST, "/academic-subscription/subscribe").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.POST, "/academic-subscription/subscribe-batching").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.GET, "/academic-subscription/classes").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.GET, "/academic-subscription/subscribe/download-ics").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/academic-subscription/classes", "/academic-subscription/entire-calendar").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/academic-subscription/subscribe/download-ics", "/academic-subscription/subscribe/get-sync-url").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.DELETE, "/academic-subscription/remove-grade").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.DELETE, "/academic-subscription/remove-subscription").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+
+                                .pathMatchers(HttpMethod.POST, "/academic-subscription/create-group-event").hasAnyRole( "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/remove-group-event").hasAnyRole( "TEACHER", "ADMIN")
+
+                                .pathMatchers(HttpMethod.POST, "/academic-subscription/create-faculty-event").hasAnyRole( "ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/remove-faculty-event").hasAnyRole( "ADMIN")
                                 
                                 // Any other request must be authenticated
                                 .anyExchange().authenticated()
