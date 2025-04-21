@@ -15,6 +15,7 @@ public class ApiGatewayApplication {
 		Dotenv dotenv = Dotenv.load();
 		System.setProperty("JWT_SECRET", dotenv.get("JWT_SECRET"));
 		System.setProperty("API_KEY", dotenv.get("API_KEY"));
+		System.setProperty("EUREKA_URL", dotenv.get("EUREKA_URL"));
 		SpringApplication.run(ApiGatewayApplication.class, args);
 	}
 
