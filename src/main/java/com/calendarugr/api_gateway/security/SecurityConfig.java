@@ -22,6 +22,7 @@ public class SecurityConfig {
 
     @Bean
     SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) throws Exception {
+        
         http
                 .addFilterAt(jwtAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf(csrf -> csrf.disable())
@@ -31,28 +32,29 @@ public class SecurityConfig {
                                 
                                 // User service
                                 .pathMatchers(HttpMethod.GET, "/user/nickname/**","/user/email/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.PUT, "/user/update-nickname/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.PUT, "/user/change-password/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/nickname/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/password/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.POST, "/user/activate").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.POST, "/user/deactivate/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.PUT, "/user/change-role/**").hasAnyRole("TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/role/**").hasAnyRole("TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.PUT, "/user/activate-notifications/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.PUT, "/user/deactivate-notifications/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.GET, "/user/get-emails/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/user/email-list/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
 
                                 .pathMatchers(HttpMethod.GET, "/user/all").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.POST, "/user/crear-admin").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.PUT, "/user/actualizar-admin/**").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.DELETE, "/user/borrar-admin/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/user/admin/register").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/admin/update/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/user/admin/delete/**").hasRole("ADMIN")
 
-                                .pathMatchers(HttpMethod.GET, "/user/role-all").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.POST, "/user/role-create").hasRole("ADMIN")
-                                .pathMatchers(HttpMethod.DELETE, "/user/role-delete/**").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/user/roles/all").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/user/roles/create").hasRole("ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/user/roles/delete/**").hasRole("ADMIN")
 
                                 // Sechedule consumer service ( We permit everybody to GET public information ...)
                                 // Post endpoint in this service are meant to be used by other services
                                 .pathMatchers(HttpMethod.GET, "/schedule-consumer/**").permitAll() // Allow all GET requests to schedule-consumer service
-
+                                .pathMatchers(HttpMethod.POST, "/schedule-consumer/**").hasRole("ADMIN") // Only allow ADMIN to POST to schedule-consumer service
+                                
                                 // Mail service
                                 .pathMatchers(HttpMethod.POST, "/email/send").hasRole("ADMIN") // Only allow ADMIN to send emails
 
