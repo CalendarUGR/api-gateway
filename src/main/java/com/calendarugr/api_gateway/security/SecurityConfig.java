@@ -27,15 +27,18 @@ public class SecurityConfig {
                 .addFilterAt(jwtAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf(csrf -> csrf.disable())
                 .authorizeExchange(exchange -> exchange
+                                //CORS CONF
+                                .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                
                                 // Auth service
-                                .pathMatchers("/auth/login", "/auth/refresh", "/user/register", "/user/activate").permitAll()
+                                .pathMatchers("/auth/login", "/auth/refresh", "/user/register", "/user/activate", "academic-subscription/calendar/**").permitAll()
                                 
                                 // User service
                                 .pathMatchers(HttpMethod.GET, "/user/nickname/**","/user/email/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.PUT, "/user/nickname/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.PUT, "/user/password/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.POST, "/user/activate").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.POST, "/user/deactivate/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.PUT, "/user/deactivate/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.PUT, "/user/role/**").hasAnyRole("TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.PUT, "/user/activate-notifications/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.PUT, "/user/deactivate-notifications/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
@@ -59,21 +62,24 @@ public class SecurityConfig {
                                 .pathMatchers(HttpMethod.POST, "/email/send").hasRole("ADMIN") // Only allow ADMIN to send emails
 
                                 // Academic subscription service
-                                .pathMatchers(HttpMethod.POST, "/academic-subscription/subscribe").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.POST, "/academic-subscription/subscribe-batching").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/academic-subscription/subscription").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/academic-subscription/subscription-batching").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                                 .pathMatchers(HttpMethod.GET, "/academic-subscription/classes", "/academic-subscription/entire-calendar").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.GET, "/academic-subscription/subscribe/download-ics", "/academic-subscription/subscribe/get-sync-url").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/remove-grade").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/remove-subscription").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/academic-subscription/ics", "/academic-subscription/sync-url").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/academic-subscription/subscriptions").permitAll()
+                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/subscription-grade").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/subscription").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
 
-                                .pathMatchers(HttpMethod.POST, "/academic-subscription/create-group-event").hasAnyRole( "TEACHER", "ADMIN")
-                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/remove-group-event").hasAnyRole( "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/academic-subscription/group-event").hasAnyRole(  "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/academic-subscription/group-event").hasAnyRole( "TEACHER", "ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/group-event").hasAnyRole( "TEACHER", "ADMIN")
 
-                                .pathMatchers(HttpMethod.POST, "/academic-subscription/create-faculty-event").hasAnyRole( "ADMIN")
-                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/remove-faculty-event").hasAnyRole( "ADMIN")
+                                .pathMatchers(HttpMethod.GET, "/academic-subscription/faculty-group-event").hasRole( "ADMIN")
+                                .pathMatchers(HttpMethod.POST, "/academic-subscription/faculty-event").hasRole( "ADMIN")
+                                .pathMatchers(HttpMethod.DELETE, "/academic-subscription/faculty-event").hasRole( "ADMIN")
                                 
-                                // Any other request must be authenticated
-                                .anyExchange().authenticated()
+                                // Any other request
+                                .anyExchange().authenticated() // All other requests require authentication
                 )
                 .requestCache(cache -> cache
                         .requestCache(NoOpServerRequestCache.getInstance())); // Disable request caching, sessions are stateless
