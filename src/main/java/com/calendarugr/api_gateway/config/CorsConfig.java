@@ -13,6 +13,7 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.addAllowedOrigin("http://localhost:4200"); 
+        corsConfig.addAllowedOrigin("https://tempus.ugr.es");
         corsConfig.addAllowedMethod("*"); 
         corsConfig.addAllowedHeader("*"); 
         corsConfig.setAllowCredentials(true); 
