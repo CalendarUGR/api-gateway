@@ -14,6 +14,7 @@ public class CorsConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.addAllowedOrigin("http://localhost:4200"); 
         corsConfig.addAllowedOrigin("https://tempus.ugr.es");
+        corsConfig.addAllowedOrigin("https://minixatc.ugr.es");
         corsConfig.addAllowedMethod("*"); 
         corsConfig.addAllowedHeader("*"); 
         corsConfig.setAllowCredentials(true); 

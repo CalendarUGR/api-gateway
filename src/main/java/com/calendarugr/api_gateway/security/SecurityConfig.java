@@ -31,7 +31,7 @@ public class SecurityConfig {
                                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 
                                 // Auth service
-                                .pathMatchers("/auth/login", "/auth/refresh", "/user/register", "/user/activate", "academic-subscription/calendar/**").permitAll()
+                                .pathMatchers("/auth/login", "/auth/refresh", "/user/register", "/user/activate", "academic-subscription/calendar/**", "/user/reset-pass-mail", "/user/reset-password").permitAll()
                                 
                                 // User service
                                 .pathMatchers(HttpMethod.GET, "/user/nickname/**","/user/email/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
